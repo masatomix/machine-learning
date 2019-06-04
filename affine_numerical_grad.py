@@ -6,13 +6,14 @@ import numpy as np
 
 W = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 b = np.array([1.0, 2.0, 3.0])
-# x = np.array([[1.0, 2.0], [1.0, 2.0]])
-x = np.array([[1.0, 2.0]])
 
 
 def main(args):
     # 数値微分
+    x = np.array([[1.0, 2.0], [2.0, 3.0]])
+    print(loss(affine(x)))
     grads = numerical_gradients(x)
+
     print('f ここではloss を x_kで微分する')
     print(grads['x'])
     print('f ここではloss を w_ik で微分する')
@@ -21,25 +22,38 @@ def main(args):
     print(grads['b'])
 
 
-def affine(x):
-    y = np.dot(x, W) + b
+def affine(vectors):
+    y = np.dot(vectors, W) + b
     return y
+    # return sigmoid(y)
 
 
-def loss(x):
-    y = affine(x)
+def loss(vectors):
+    # y = affine(_x)
     # print('yShape: ', end='')
     # print(y.shape)
-    return np.sum(y)
-    # return y[0][0] * 1.0 + y[0][1] * 10.0 + y[0][2] * 100.0
+    # return y[0][1]
+    # return y[1][0] * 1.0 + y[1][1] * 10.0 + y[1][2] * 100.0
+    # print(y)
+    # print(np.sum(y))
+    return np.sum(vectors)
 
 
-def numerical_gradients(x):
+def numerical_gradients(vectors):
+    def loss_x(x):
+        y = affine(x)
+        return loss(y)
+
+    def loss_w(WW):
+        y = affine(vectors)
+        return loss(y)
+
+    def loss_b(BB):
+        y = affine(vectors)
+        return loss(y)
+
     grads = {}
-
-    loss_w = lambda WW: loss(x)
-    loss_b = lambda bb: loss(x)
-    grads['x'] = numerical_gradient(loss, x)
+    grads['x'] = numerical_gradient(loss_x, vectors)
     grads['W'] = numerical_gradient(loss_w, W)
     grads['b'] = numerical_gradient(loss_b, b)
     return grads
