@@ -3,6 +3,7 @@
 
 import sys
 import numpy as np
+from functions import sigmoid
 
 W = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 b = np.array([1.0, 2.0, 3.0])
@@ -25,26 +26,31 @@ def main(args):
 class Net:
 
     def __init__(self, W, b):
-        self.layer1 = AffineLayer(W, b)
-        self.layer2 = LossLayer()
+        self.affine_layer = AffineLayer(W, b)
+        self.loss_layer = LossLayer()
+        # self.sigmoid_layer = SigmoidLayer()
 
     def predict(self, x):
-        return self.layer1.forward(x)
+        y = self.affine_layer.forward(x)
+        # y = self.sigmoid_layer.forward(y)
+        return y
 
     def loss(self, y):
-        return self.layer2.forward(y)
+        return self.loss_layer.forward(y)
 
     def gradient(self, x):
         y = self.predict(x)
         self.loss(y)
-        dout = 1
-        dout = self.layer2.backward(dout)
-        dout = self.layer1.backward(dout)
+
+        dout = 1.0
+        dout = self.loss_layer.backward(dout)
+        # dout = self.sigmoid_layer.backward(dout)
+        dout = self.affine_layer.backward(dout)
 
         grads = {}
         grads['x'] = dout
-        grads['W'] = self.layer1.dw
-        grads['b'] = self.layer1.db
+        grads['W'] = self.affine_layer.dw
+        grads['b'] = self.affine_layer.db
 
         return grads
 
@@ -83,6 +89,20 @@ class LossLayer:
 
     def backward(self, dout):
         return np.full(self.x.shape, dout)
+
+
+class SigmoidLayer:
+    def __init__(self):
+        self.out = None
+
+    def forward(self, x):
+        out = sigmoid(x)
+        self.out = out
+        return out
+
+    def backward(self, dout):
+        dx = dout * (1.0 - self.out) * self.out
+        return dx
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 
 import sys
 import numpy as np
+from functions import sigmoid
 
 W = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 b = np.array([1.0, 2.0, 3.0])
@@ -11,7 +12,7 @@ b = np.array([1.0, 2.0, 3.0])
 def main(args):
     # 数値微分
     x = np.array([[1.0, 2.0], [2.0, 3.0]])
-    print(loss(affine(x)))
+    print(loss(sigmoid(affine(x))))
     grads = numerical_gradients(x)
 
     print('f ここではloss を x_kで微分する')
@@ -42,15 +43,18 @@ def loss(vectors):
 def numerical_gradients(vectors):
     def loss_x(x):
         y = affine(x)
-        return loss(y)
+        z = sigmoid(y)
+        return loss(z)
 
     def loss_w(WW):
         y = affine(vectors)
-        return loss(y)
+        z = sigmoid(y)
+        return loss(z)
 
     def loss_b(BB):
         y = affine(vectors)
-        return loss(y)
+        z = sigmoid(y)
+        return loss(z)
 
     grads = {}
     grads['x'] = numerical_gradient(loss_x, vectors)
