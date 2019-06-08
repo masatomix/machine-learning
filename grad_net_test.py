@@ -4,6 +4,7 @@
 import sys
 import numpy as np
 from functions import sigmoid
+from abc import ABCMeta, abstractmethod
 
 W = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 b = np.array([1.0, 2.0, 3.0])
@@ -11,8 +12,14 @@ b = np.array([1.0, 2.0, 3.0])
 
 def main(args):
     x = np.array([[1.0, 2.0], [2.0, 3.0]])
+
     net = Net(W, b)
-    print(net.loss(net.predict(x)))
+    y = net.predict(x)
+
+    print(f'予測値:\n{y}')
+    print(f'損失値: {net.loss(y)}')
+
+    # 微分係数の計算
     grads = net.gradient(x)
 
     print('f ここではloss を x_kで微分する')
@@ -41,7 +48,6 @@ class Net:
     def gradient(self, x):
         y = self.predict(x)
         self.loss(y)
-
         dout = 1.0
         dout = self.loss_layer.backward(dout)
         # dout = self.sigmoid_layer.backward(dout)
@@ -55,11 +61,21 @@ class Net:
         return grads
 
 
-class AffineLayer:
+class Layer(metaclass=ABCMeta):
+
+    @abstractmethod
+    def forward(self, x):
+        pass
+
+    @abstractmethod
+    def backward(self, dout):
+        pass
+
+
+class AffineLayer(Layer):
     def __init__(self, W, b):
         self.W = W
         self.b = b
-
         self.x = None
 
         # 重み・バイアスパラメータの微分
@@ -79,7 +95,7 @@ class AffineLayer:
         return dx
 
 
-class LossLayer:
+class LossLayer(Layer):
     def __init__(self):
         self.x = None
 
